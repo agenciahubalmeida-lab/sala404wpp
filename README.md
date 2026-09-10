@@ -66,3 +66,9 @@ Referências: [Supabase — segurança da API](https://supabase.com/docs/guides/
 Build de produção, TypeScript e três testes unitários aprovados. `tests/browser.mjs` verifica 390×844, 393×852, 430×932 e 1440×1000 sem overflow horizontal, seis etapas, máscara, UTMs, preservação dos campos após erro real da API sem configuração e tela final com resposta **simulada localmente**. Nenhum cadastro ou aviso real é criado por esse teste. Para executar: inicie a aplicação e rode `node tests/browser.mjs` com Chromium instalado pelo Playwright ou `TEST_CHROME_PATH` apontando para o executável. Capturas ficam em `test-results/` (ignoradas pelo Git).
 
 Pendente de validação externa: execução do SQL em Supabase ativo, persistência real, entrega ao telefone, recebimento no Gerenciador de Eventos e deploy Vercel. O projeto Supabase disponível na sessão estava inativo e não foi alterado.
+
+## Revisão editorial do design
+
+Fundo papel `#F4F1EA`, secundário `#EAE6DC` e detalhes vinho `#6B3035`. Apenas a monarquia mantém fundo preto. Header de 68 px no desktop e 60 px no mobile; marca do hero de 32/27 px, headline desktop de 58 px e leitura principal com até 740 px. Textos seguem sequência vertical; doodles funcionam como pequenas notas visuais.
+
+O teste de navegador agora cobre 1440×900, 1366×768, 390×844, 393×852 e 430×932, verificando hero e CTA dentro da primeira dobra, ausência de overflow e dimensões da tipografia. Falha e sucesso do cadastro são simulados, sem gravações reais; os eventos do Pixel são inspecionados com o script externo interceptado localmente. `TEST_BASE_URL` permite selecionar a porta do servidor. Capturas da primeira dobra: `test-results/hero-1440.png` e equivalentes para as outras larguras. A revisão altera apresentação e testes; a lógica do quiz, endpoints, Supabase, validação e tracking permanece preservada.

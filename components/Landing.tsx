@@ -36,14 +36,8 @@ export function Landing() {
             <span className="sep">/</span> GRUPO PRIVADO NO WHATSAPP
           </Kicker>
           <div className="hero-title">
-            <span className="hero-label">VOCÊ ENCONTROU A</span>
-            <div className="room">
-              SALA 404<span className="asterisk">*</span>
-            </div>
-            <div className="door-note">
-              <StickFigure />
-              <span>resolvi abrir a porta.</span>
-            </div>
+            <div className="room">SALA 404</div>
+            <span className="byline">POR LUIS FERNANDO</span>
           </div>
           <h1>
             EU CONSTRUÍ UMA RENDA NA INTERNET SEM PRECISAR CONSTRUIR UMA
@@ -64,31 +58,27 @@ export function Landing() {
                 </strong>
               </p>
             </div>
-            <div className="hero-aside">
-              <p>Meu jogo acontece nos bastidores:</p>
-              <p className="topics">
-                Software. IA. Clientes.
-                <br />
-                Produtos. Ofertas. Vendas.
-              </p>
-              <p>Resolvi abrir a porta.</p>
-              <Entry target="acordo">LEIA ANTES DE ENTRAR ↓</Entry>
+            <div className="door-note">
+              <StickFigure />
+              <span>resolvi abrir a porta.</span>
             </div>
           </div>
+          <a className="button" href="#acordo" data-track="click_enter">
+            LEIA AS REGRAS <span aria-hidden="true">↓</span>
+          </a>
           <div className="section-bottom">
-            <span>POR LUIS FERNANDO</span>
+            <span>
+              Meu jogo acontece nos bastidores: Software. IA. Clientes.
+              Produtos. Ofertas. Vendas.
+            </span>
             <span>SEM PALCO. COM TRABALHO.</span>
           </div>
         </section>
-        <section className="dark" id="acordo">
+        <section className="agreement-section" id="acordo">
           <div className="wrap section">
             <Kicker>01 / O ACORDO</Kicker>
             <div className="split">
-              <h2>
-                ME DÊ
-                <br />
-                <span className="accent">7 DIAS.</span>
-              </h2>
+              <h2>ME DÊ 7 DIAS.</h2>
               <div className="reading">
                 <p>
                   Se em até 7 dias dentro da SALA 404 eu não te entregar pelo
@@ -108,11 +98,7 @@ export function Landing() {
               </div>
             </div>
             <div className="agreement">
-              <h3>
-                QUERO GENTE QUE FICA
-                <br />
-                PORQUE EXISTE VALOR.
-              </h3>
+              <h3>QUERO GENTE QUE FICA PORQUE EXISTE VALOR.</h3>
               <div className="split small">
                 <div>
                   <p>
@@ -130,15 +116,9 @@ export function Landing() {
         <section className="wrap section attention">
           <Kicker>02 / SOBRE O SEU TEMPO</Kicker>
           <h2>
-            VOCÊ NÃO ME
+            VOCÊ NÃO ME DEVE ATENÇÃO.
             <br />
-            DEVE ATENÇÃO.
-            <br />
-            <span className="muted">
-              EU TENHO QUE
-              <br />
-              MERECÊ-LA.
-            </span>
+            <span className="muted">EU TENHO QUE MERECÊ-LA.</span>
           </h2>
           <div className="offset reading">
             <p>
@@ -155,9 +135,7 @@ export function Landing() {
         <section className="wrap section not-this">
           <Kicker>03 / ANTES DE ENTRAR</Kicker>
           <h2>
-            O QUE ISSO
-            <br />
-            NÃO É<span className="accent">.</span>
+            O QUE ISSO NÃO É<span className="accent">.</span>
           </h2>
           <div className="editorial-list">
             {[
@@ -192,11 +170,7 @@ export function Landing() {
           <div className="wrap section monarchy">
             <Kicker>04 / AS REGRAS DA SALA</Kicker>
             <p className="intro-title">AQUI FUNCIONA COMO UMA MONARQUIA.</p>
-            <h2>
-              EXISTE UM
-              <br />
-              ÚNICO <span className="accent">MICROFONE.</span>
-            </h2>
+            <h2>EXISTE UM ÚNICO MICROFONE.</h2>
             <div className="split">
               <div>
                 <p>E ele fica comigo.</p>
@@ -232,9 +206,7 @@ export function Landing() {
           <Kicker>05 / LÁ DENTRO</Kicker>
           <div className="section-heading">
             <h2>
-              O QUE VOCÊ
-              <br />
-              VAI VER<span className="accent">.</span>
+              O QUE VOCÊ VAI VER<span className="accent">.</span>
             </h2>
             <StickFigure variant="chart" />
           </div>
@@ -276,13 +248,13 @@ export function Landing() {
         <section className="about">
           <div className="wrap section">
             <Kicker>06 / QUEM ESTÁ POR TRÁS DISSO?</Kicker>
-            <h2>
-              MEU NOME É<br />
-              LUIS FERNANDO.
-            </h2>
+            <h2>MEU NOME É LUIS FERNANDO.</h2>
             <div className="split about-intro">
               <div>
-                <StickFigure variant="working" />
+                <div className="operator-doodles">
+                  <StickFigure variant="working" />
+                  <StickFigure variant="stories" />
+                </div>
                 <p className="handwritten">menos stories, mais entrega.</p>
               </div>
               <div className="reading">
@@ -331,17 +303,11 @@ export function Landing() {
             </div>
           </div>
         </section>
-        <section className="dark">
+        <section className="operator-section">
           <div className="wrap section operator">
             <Kicker>07 / PRIMEIRO, A OPERAÇÃO</Kicker>
             <h3 className="intro-title muted">EU NÃO VIVO DE ENSINAR ISSO.</h3>
-            <h2>
-              EU ENSINO
-              <br />
-              PORQUE
-              <br />
-              <span className="accent">VIVO DISSO.</span>
-            </h2>
+            <h2>EU ENSINO PORQUE VIVO DISSO.</h2>
             <div className="operator-grid">
               {[
                 ["Não estudo software para fazer conteúdo.", "EU CONSTRUO."],
@@ -393,13 +359,13 @@ export function Landing() {
             </div>
           </div>
         </section>
-        <section className="dark">
+        <section className="filter-section">
           <div className="wrap section filter">
             <Kicker>09 / ÚLTIMO FILTRO</Kicker>
             <h2>
               SE VOCÊ QUER APRENDER ALGO ÚTIL,
               <br />
-              <span className="accent">SEJA BEM-VINDO.</span>
+              <span>SEJA BEM-VINDO.</span>
             </h2>
             <div className="split">
               <div>

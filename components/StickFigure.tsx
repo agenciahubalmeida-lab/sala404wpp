@@ -1,7 +1,7 @@
 export function StickFigure({
   variant = "door",
 }: {
-  variant?: "door" | "leaving" | "microphone" | "working" | "chart";
+  variant?: "door" | "leaving" | "microphone" | "working" | "chart" | "stories";
 }) {
   return (
     <svg
@@ -68,6 +68,21 @@ export function StickFigure({
           <path d="M87 33h114v87H87zM101 104l23-29 20 13 39-38m-17 0h17v17" />
           <circle cx="47" cy="91" r="12" />
           <path d="M47 105v31l-21 30m21-30 22 28M48 114l23 6 36-25M45 113l-22 15" />
+        </>
+      )}
+      {variant === "stories" && (
+        <>
+          <circle cx="93" cy="60" r="13" />
+          <path d="m93 74-3 47-22 40m22-40 27 38M91 86l27 19 32-35M89 89l-27 24-13-10" />
+          <rect
+            x="145"
+            y="44"
+            width="18"
+            height="29"
+            rx="3"
+            transform="rotate(9 145 44)"
+          />
+          <path d="m152 49 4 1m-21-15-7-9m39 9 9-8M52 165h83" />
         </>
       )}
     </svg>
