@@ -1,4 +1,45 @@
-import {z} from 'zod';
-import {questions} from './questions';
-const attr=z.object({source_url:z.url().max(2048).refine(v=>/^https?:/.test(v)),referrer:z.string().max(2048).default(''),utm_source:z.string().max(300).default(''),utm_medium:z.string().max(300).default(''),utm_campaign:z.string().max(300).default(''),utm_content:z.string().max(300).default(''),utm_term:z.string().max(300).default(''),fbclid:z.string().max(500).default('')});
-export const leadSchema=z.object({answers:z.array(z.string()).length(4).refine(a=>a.every((v,i)=>questions[i].options.includes(v)),'Escolha uma opção válida em cada pergunta.'),name:z.string().trim().min(3).max(120).refine(n=>n.split(/\s+/).length>=2,'Informe nome e sobrenome.'),phone:z.string().max(25).transform(p=>p.replace(/\D/g,'')).refine(p=>/^[1-9]{2}9\d{8}$/.test(p),'Informe um celular válido com DDD.').transform(p=>'55'+p),consent:z.literal(true),marketing_consent:z.boolean(),attribution:attr,fbp:z.string().max(200).default(''),fbc:z.string().max(700).default(''),website:z.literal('').default('')});
+import { z } from "zod";
+import { questions } from "./questions";
+const attr = z.object({
+  source_url: z
+    .url()
+    .max(2048)
+    .refine((v) => /^https?:/.test(v)),
+  referrer: z.string().max(2048).default(""),
+  utm_source: z.string().max(300).default(""),
+  utm_medium: z.string().max(300).default(""),
+  utm_campaign: z.string().max(300).default(""),
+  utm_content: z.string().max(300).default(""),
+  utm_term: z.string().max(300).default(""),
+  fbclid: z.string().max(500).default(""),
+});
+export const leadSchema = z.object({
+  answers: z
+    .array(z.string())
+    .length(4)
+    .refine(
+      (a) => a.every((v, i) => questions[i].options.includes(v)),
+      "Escolha uma opção válida em cada pergunta.",
+    ),
+  name: z
+    .string()
+    .trim()
+    .min(3)
+    .max(120)
+    .refine((n) => n.split(/\s+/).length >= 2, "Informe nome e sobrenome."),
+  phone: z
+    .string()
+    .max(25)
+    .transform((p) => p.replace(/\D/g, ""))
+    .refine(
+      (p) => /^[1-9]{2}9\d{8}$/.test(p),
+      "Informe um celular válido com DDD.",
+    )
+    .transform((p) => "55" + p),
+  consent: z.literal(true),
+  marketing_consent: z.boolean(),
+  attribution: attr,
+  fbp: z.string().max(200).default(""),
+  fbc: z.string().max(700).default(""),
+  website: z.literal("").default(""),
+});

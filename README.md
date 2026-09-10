@@ -60,3 +60,9 @@ Medição é ativada quando o visitante aceita cookies opcionais. A recusa não 
 Sem Supabase ou convite configurado, o formulário retorna erro legível e mantém as respostas; ele nunca finge ter salvo. Sem credenciais de notificação ou Meta, os cadastros ficam na fila com erro para nova tentativa. As integrações reais dependem das contas e variáveis do titular e precisam de validação em produção.
 
 Referências: [Supabase — segurança da API](https://supabase.com/docs/guides/api/securing-your-api), [Meta — deduplicação](https://developers.facebook.com/docs/marketing-api/conversions-api/deduplicate-pixel-and-server-events/), [Next.js — instalação](https://nextjs.org/docs/app/getting-started/installation).
+
+## Validação desta entrega
+
+Build de produção, TypeScript e três testes unitários aprovados. `tests/browser.mjs` verifica 390×844, 393×852, 430×932 e 1440×1000 sem overflow horizontal, seis etapas, máscara, UTMs, preservação dos campos após erro real da API sem configuração e tela final com resposta **simulada localmente**. Nenhum cadastro ou aviso real é criado por esse teste. Para executar: inicie a aplicação e rode `node tests/browser.mjs` com Chromium instalado pelo Playwright ou `TEST_CHROME_PATH` apontando para o executável. Capturas ficam em `test-results/` (ignoradas pelo Git).
+
+Pendente de validação externa: execução do SQL em Supabase ativo, persistência real, entrega ao telefone, recebimento no Gerenciador de Eventos e deploy Vercel. O projeto Supabase disponível na sessão estava inativo e não foi alterado.

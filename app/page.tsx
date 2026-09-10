@@ -1,2 +1,4 @@
-import { Landing } from '@/components/Landing';
-export default function Page(){return <Landing/>}
+import { Landing } from "@/components/Landing";
+export default function Page() {
+  return <Landing />;
+}
