@@ -65,7 +65,13 @@ Referências: [Supabase — segurança da API](https://supabase.com/docs/guides/
 
 Build de produção, TypeScript e três testes unitários aprovados. `tests/browser.mjs` verifica 390×844, 393×852, 430×932 e 1440×1000 sem overflow horizontal, seis etapas, máscara, UTMs, preservação dos campos após erro real da API sem configuração e tela final com resposta **simulada localmente**. Nenhum cadastro ou aviso real é criado por esse teste. Para executar: inicie a aplicação e rode `node tests/browser.mjs` com Chromium instalado pelo Playwright ou `TEST_CHROME_PATH` apontando para o executável. Capturas ficam em `test-results/` (ignoradas pelo Git).
 
-Pendente de validação externa: execução do SQL em Supabase ativo, persistência real, entrega ao telefone, recebimento no Gerenciador de Eventos e deploy Vercel. O projeto Supabase disponível na sessão estava inativo e não foi alterado.
+Supabase ativo configurado: `anpuysanboappfykiagv` (`https://anpuysanboappfykiagv.supabase.co`). O SQL foi aplicado e a API local foi testada contra o banco real: gravação, UTM, convite e deduplicação aprovados. A chave de servidor está somente em `.env.local`, ignorado pelo Git; precisa ser configurada também na hospedagem.
+
+`tests/supabase.integration.sql` verifica RLS, permissões, unicidade de telefone, limite de tentativas e reserva da fila dentro de uma transação revertida. Execute com `npx supabase db query --linked --project-ref anpuysanboappfykiagv --file tests/supabase.integration.sql` após login oficial. A auditoria de segurança não apontou problemas na configuração inicial.
+
+`tests/supabase-live.mjs` é um teste explícito contra o banco real: requer build existente, `.env.local` configurado e `RUN_SUPABASE_TESTS=yes`. Execute `node --env-file=.env.local tests/supabase-live.mjs`. Ele inicia um servidor local na porta 3020 com entregas externas desativadas, cria um cadastro fictício, testa duplicação e remove seus registros. Não executa automaticamente junto de `npm test`.
+
+Pendente: credenciais na hospedagem, configuração do canal/destino de notificação, agendamento de reenvio, entrega real ao telefone e recebimento no Gerenciador de Eventos. Nenhum envio à Meta ou ao celular foi realizado no teste do Supabase.
 
 ## Revisão editorial do design
 
