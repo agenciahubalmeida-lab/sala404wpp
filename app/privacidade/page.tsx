@@ -39,6 +39,13 @@ export default function Privacy() {
       </p>
       <h2>Retenção e seus direitos</h2>
       <p>
+        O painel privado permite que o administrador cadastre seu aparelho para
+        receber notificações push. Armazenamos o endereço de entrega e as chaves
+        da inscrição no Supabase. Os avisos push não incluem nome ou telefone
+        dos participantes; os detalhes são consultados mediante acesso ao
+        painel. O administrador pode remover a inscrição pelo botão Desativar.
+      </p>
+      <p>
         Os dados são mantidos enquanto necessários para o relacionamento e as
         finalidades descritas, respeitando eventuais obrigações de conservação.
         Você pode solicitar informações, correção, exclusão e revogação do

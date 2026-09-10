@@ -1,5 +1,29 @@
 # SALA 404
 
+## Painel privado e notificações no iPhone
+
+O canal atual é **Web Push**, configurado com `NOTIFICATION_CHANNEL=push`. Nesse modo o envio não usa Telegram nem webhook, mesmo que as credenciais antigas existam. Sem aparelho inscrito, o aviso fica pendente na fila para nova tentativa.
+
+Painel em `/painel`, protegido por senha no servidor. Sessão assinada de sete dias em cookie HttpOnly/SameSite Strict (Secure em produção), limite persistente de tentativas e APIs sem cache. O painel mostra até 50 cadastros recentes. O service worker não armazena dados privados offline. Sair encerra a sessão do navegador; **Desativar** remove as notificações daquele aparelho. Para revogar todas as sessões, troque `ADMIN_SESSION_SECRET`.
+
+Novas variáveis, já geradas em `.env.local` e que devem ser copiadas para a hospedagem:
+
+| Variável | Finalidade |
+| --- | --- |
+| `NOTIFICATION_CHANNEL` | `push` para avisos da própria SALA 404. |
+| `ADMIN_PASSWORD` | Senha privada para entrar no painel. |
+| `ADMIN_SESSION_SECRET` | Segredo aleatório com pelo menos 32 caracteres. |
+| `VAPID_PUBLIC_KEY` | Chave pública para inscrever aparelhos. |
+| `VAPID_PRIVATE_KEY` | Chave privada de envio. Preserve o par entre deploys. |
+| `VAPID_SUBJECT` | URL HTTPS ou contato mailto válido do responsável; inicialmente URL do repositório. |
+| `CRON_SECRET` | Protege `/api/cron/deliveries`; configurar agendamento de reenvio na hospedagem. |
+
+`supabase/push.sql` já foi aplicado no projeto `anpuysanboappfykiagv`: aparelhos e recibos por cadastro/aparelho têm RLS e acesso apenas pelo servidor. Recibos evitam reenvios após sucesso; se houver interrupção entre aceite do serviço push e gravação do recibo, uma repetição é possível. A tag do evento permite substituir o aviso anterior. Endpoints expirados (404/410) são removidos. Aceitação pelo serviço push não comprova que o aparelho exibiu ou leu a notificação.
+
+Depois de publicar em HTTPS: abra `/painel` no Safari do iPhone (iOS 16.4+), use **Compartilhar → Adicionar à Tela de Início**, abra pelo ícone, entre com a senha e toque em **Ativar notificações → Permitir**. Use **Enviar teste** e confira na tela bloqueada. O push mostra somente que existe um novo cadastro; nomes e telefones ficam dentro do painel. Não há publicação na App Store.
+
+Validação: build/TypeScript, testes de sessão e endpoints, navegador em 390×844, login/logout, manifest, ícones PNG, inscrição/remoção real no banco e proteção de APIs. `tests/panel.mjs` requer servidor com acesso ao Supabase, `TEST_BASE_URL` e ambiente privado. `tests/push-delivery.ts` requer `RUN_SUPABASE_TESTS=yes`: testa recibos e expiração contra o banco com transporte push simulado e remove os dados de teste; executar antes de inscrever aparelhos reais. A entrega real no iPhone só pode ser confirmada após publicação e inscrição do aparelho.
+
 Landing page editorial em Next.js + TypeScript. Dez seções, SVGs próprios, quiz acessível de seis etapas, cadastro no Supabase, Meta Pixel/CAPI e aviso no celular. O cadastro não confirma participação efetiva no grupo.
 
 ## Rodar

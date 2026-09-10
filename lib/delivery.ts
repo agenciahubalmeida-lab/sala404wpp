@@ -1,4 +1,5 @@
 import { database } from "./server";
+import { notifyPush } from "./push";
 type Job = {
   id: string;
   name: string;
@@ -66,7 +67,12 @@ export async function deliverPending(id?: string) {
     if (!notification) {
       const text = `Novo cadastro na SALA 404\n\n${job.name}\nWhatsApp: +${job.phone}\nPerfil: ${job.profession}\nInteresse: ${job.reason}\n\nCadastro salvo. Convite do grupo liberado (entrada ainda não confirmada).`;
       try {
-        if (process.env.TELEGRAM_BOT_TOKEN && process.env.TELEGRAM_CHAT_ID) {
+        if (process.env.NOTIFICATION_CHANNEL === "push") {
+          await notifyPush(job);
+        } else if (
+          process.env.TELEGRAM_BOT_TOKEN &&
+          process.env.TELEGRAM_CHAT_ID
+        ) {
           const response = await post(
             `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage`,
             { chat_id: process.env.TELEGRAM_CHAT_ID, text },
