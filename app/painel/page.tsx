@@ -6,6 +6,8 @@ import "./panel.css";
 export default function Panel() {
   const registrationRef = useRef<ServiceWorkerRegistration | null>(null);
   const [preparing, setPreparing] = useState(true);
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [auth, setAuth] = useState(false),
     [loading, setLoading] = useState(true),
     [busy, setBusy] = useState(false),
@@ -16,8 +18,12 @@ export default function Panel() {
     [sub, setSub] = useState<PushSubscription | null>(null),
     [supported, setSupported] = useState(false),
     [installed, setInstalled] = useState(false);
-  async function refresh() {
-    const r = await fetch("/api/admin/leads", { cache: "no-store" });
+  async function refresh(cursor?: string) {
+    const r = await fetch(
+      "/api/admin/leads" +
+        (cursor ? `?cursor=${encodeURIComponent(cursor)}` : ""),
+      { cache: "no-store", signal: AbortSignal.timeout(15000) },
+    );
     if (r.status === 401) {
       setAuth(false);
       setLeads([]);
@@ -25,7 +31,18 @@ export default function Panel() {
     }
     if (!r.ok) throw Error("Não foi possível atualizar os cadastros.");
     const d = await r.json();
-    setLeads(d.leads);
+    setLeads((previous) =>
+      cursor
+        ? [
+            ...previous,
+            ...d.leads.filter(
+              (lead: AdminLead) =>
+                !previous.some((item) => item.id === lead.id),
+            ),
+          ]
+        : d.leads,
+    );
+    setNextCursor(d.nextCursor || null);
     setKey(d.publicKey);
   }
   useEffect(() => {
@@ -268,13 +285,37 @@ export default function Panel() {
               </button>
             </div>
             <p className="micro">
-              Até 50 cadastros recentes. Cadastro e convite liberado não
-              confirmam entrada no grupo.
+              Cadastros do mais recente ao mais antigo, em grupos de 50. Use
+              Carregar mais para consultar os anteriores. Cadastro e convite
+              liberado não confirmam entrada no grupo.
             </p>
             {leads.length === 0 ? (
               <p>Nenhum cadastro por enquanto.</p>
             ) : (
               leads.map((lead) => <LeadDetails key={lead.id} lead={lead} />)
+            )}
+            {leads.length > 0 && (
+              <p className="micro" role="status">
+                {leads.length} cadastros exibidos.
+                {!nextCursor && " Todos os cadastros foram carregados."}
+              </p>
+            )}
+            {nextCursor && (
+              <button
+                disabled={busy}
+                onClick={() =>
+                  void run(async () => {
+                    setLoadingMore(true);
+                    try {
+                      await refresh(nextCursor);
+                    } finally {
+                      setLoadingMore(false);
+                    }
+                  })
+                }
+              >
+                {loadingMore ? "Carregando…" : "Carregar mais"}
+              </button>
             )}
           </section>
           <button
@@ -302,7 +343,7 @@ export default function Panel() {
           {message}
         </p>
       )}
-      <footer>Luis Fernando · Hub Almeida · versão 3</footer>
+      <footer>Luis Fernando · Hub Almeida · versão 4</footer>
     </main>
   );
 }
