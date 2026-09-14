@@ -1,5 +1,6 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { preparePush, withTimeout } from "@/lib/push-browser";
 import "./panel.css";
 type Lead = {
   id: string;
@@ -10,6 +11,8 @@ type Lead = {
   created_at: string;
 };
 export default function Panel() {
+  const registrationRef = useRef<ServiceWorkerRegistration | null>(null);
+  const [preparing, setPreparing] = useState(true);
   const [auth, setAuth] = useState(false),
     [loading, setLoading] = useState(true),
     [busy, setBusy] = useState(false),
@@ -51,15 +54,23 @@ export default function Panel() {
       .catch(() => setMessage("Sem conexão. Tente atualizar a página."))
       .finally(() => setLoading(false));
     if ("serviceWorker" in navigator)
-      navigator.serviceWorker
-        .register("/painel/sw.js", { scope: "/painel" })
-        .then((r) => r.pushManager.getSubscription())
+      preparePush()
+        .then((r) => {
+          registrationRef.current = r;
+          return withTimeout(
+            r.pushManager.getSubscription(),
+            10000,
+            "Não foi possível verificar os avisos. Atualize o aplicativo.",
+          );
+        })
         .then(setSub)
         .catch(() =>
           setMessage(
             "Não foi possível preparar as notificações. Atualize a página.",
           ),
-        );
+        )
+        .finally(() => setPreparing(false));
+    else setPreparing(false);
   }, []);
   async function run(action: () => Promise<void>) {
     setBusy(true);
@@ -79,6 +90,7 @@ export default function Panel() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ action, subscription: subscription.toJSON() }),
+      signal: AbortSignal.timeout(15000),
     });
     if (!r.ok) {
       if (r.status === 401) {
@@ -97,18 +109,36 @@ export default function Panel() {
       );
     if (!key)
       throw Error("As notificações ainda não foram configuradas no servidor.");
-    const permission = await Notification.requestPermission();
+    const registration = registrationRef.current;
+    if (!registration?.active)
+      throw Error(
+        "Os avisos ainda não estão prontos. Toque em Atualizar aplicativo e tente novamente.",
+      );
+    setMessage("Aguardando sua permissão no iPhone…");
+    const permission =
+      Notification.permission === "granted"
+        ? "granted"
+        : await withTimeout(
+            Notification.requestPermission(),
+            30000,
+            "O iPhone não respondeu à permissão. Confira os Ajustes de notificações e tente novamente.",
+          );
     if (permission !== "granted")
       throw Error("Permita notificações nos Ajustes do iPhone para continuar.");
-    const registration = await navigator.serviceWorker.ready;
     const raw = atob(key.replace(/-/g, "+").replace(/_/g, "/"));
     const bytes = Uint8Array.from(raw, (c) => c.charCodeAt(0));
+    setMessage("Conectando este aparelho aos avisos…");
     const subscription =
-      (await registration.pushManager.getSubscription()) ||
-      (await registration.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: bytes,
-      }));
+      sub ||
+      (await withTimeout(
+        registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: bytes,
+        }),
+        20000,
+        "O iPhone demorou para conectar os avisos. Verifique sua conexão e tente novamente.",
+      ));
+    setMessage("Salvando a ativação…");
     await pushAction("subscribe", subscription);
     setSub(subscription);
     setMessage("Notificações ativadas neste aparelho. Envie um teste abaixo.");
@@ -182,10 +212,16 @@ export default function Panel() {
             <div className="panel-actions">
               <button
                 className="button"
-                disabled={busy}
+                disabled={busy || preparing}
                 onClick={() => void run(enable)}
               >
-                {sub ? "RECONECTAR AVISOS" : "ATIVAR NOTIFICAÇÕES"}
+                {busy
+                  ? "ATIVANDO…"
+                  : preparing
+                    ? "PREPARANDO AVISOS…"
+                    : sub
+                      ? "RECONECTAR AVISOS"
+                      : "ATIVAR NOTIFICAÇÕES"}
               </button>
               {sub && (
                 <>
@@ -218,6 +254,18 @@ export default function Panel() {
                 </>
               )}
             </div>
+            <button
+              type="button"
+              onClick={() => window.location.reload()}
+              style={{ marginTop: 16 }}
+            >
+              Atualizar aplicativo
+            </button>
+            {message && (
+              <p className="panel-message" role="status">
+                {message}
+              </p>
+            )}
           </section>
           <section>
             <div className="panel-row">
@@ -275,12 +323,12 @@ export default function Panel() {
           </button>
         </>
       )}
-      {message && (
+      {message && !auth && (
         <p className="panel-message" role="status">
           {message}
         </p>
       )}
-      <footer>Luis Fernando · Hub Almeida</footer>
+      <footer>Luis Fernando · Hub Almeida · versão 2</footer>
     </main>
   );
 }

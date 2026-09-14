@@ -2,6 +2,8 @@
 
 ## Painel privado e notificações no iPhone
 
+Correção de ativação (versão 2): o worker é registrado a partir de `/sw.js`, com escopo `/painel`. O caminho antigo `/painel/sw.js` não podia controlar `/painel` sem ampliar o escopo permitido pelo servidor e deixava `serviceWorker.ready` aguardando indefinidamente. A preparação agora verifica a ativação do registro, e preparação, permissão, inscrição e gravação têm limites de espera. O painel exibe progresso junto ao botão e permite recarregar o aplicativo. `tests/push-activation.mjs` reproduz a rejeição do escopo antigo, confirma o novo worker ativo e simula a inscrição sem enviar dados ou push reais; `tests/push-browser.test.ts` verifica que operações sem resposta encerram com erro.
+
 O canal atual é **Web Push**, configurado com `NOTIFICATION_CHANNEL=push`. Nesse modo o envio não usa Telegram nem webhook, mesmo que as credenciais antigas existam. Sem aparelho inscrito, o aviso fica pendente na fila para nova tentativa.
 
 Painel em `/painel`, protegido por senha no servidor. Sessão assinada de sete dias em cookie HttpOnly/SameSite Strict (Secure em produção), limite persistente de tentativas e APIs sem cache. O painel mostra até 50 cadastros recentes. O service worker não armazena dados privados offline. Sair encerra a sessão do navegador; **Desativar** remove as notificações daquele aparelho. Para revogar todas as sessões, troque `ADMIN_SESSION_SECRET`.
