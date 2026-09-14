@@ -1,15 +1,8 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { preparePush, withTimeout } from "@/lib/push-browser";
+import { LeadDetails, type AdminLead } from "@/components/LeadDetails";
 import "./panel.css";
-type Lead = {
-  id: string;
-  name: string;
-  phone: string;
-  profession: string;
-  reason: string;
-  created_at: string;
-};
 export default function Panel() {
   const registrationRef = useRef<ServiceWorkerRegistration | null>(null);
   const [preparing, setPreparing] = useState(true);
@@ -18,7 +11,7 @@ export default function Panel() {
     [busy, setBusy] = useState(false),
     [password, setPassword] = useState(""),
     [message, setMessage] = useState(""),
-    [leads, setLeads] = useState<Lead[]>([]),
+    [leads, setLeads] = useState<AdminLead[]>([]),
     [key, setKey] = useState(""),
     [sub, setSub] = useState<PushSubscription | null>(null),
     [supported, setSupported] = useState(false),
@@ -281,26 +274,7 @@ export default function Panel() {
             {leads.length === 0 ? (
               <p>Nenhum cadastro por enquanto.</p>
             ) : (
-              leads.map((lead) => (
-                <article key={lead.id}>
-                  <time>
-                    {new Date(lead.created_at).toLocaleString("pt-BR")}
-                  </time>
-                  <h3>{lead.name}</h3>
-                  <p>
-                    {lead.profession}
-                    <br />
-                    {lead.reason}
-                  </p>
-                  <a
-                    href={`https://wa.me/${lead.phone}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    +{lead.phone} ↗
-                  </a>
-                </article>
-              ))
+              leads.map((lead) => <LeadDetails key={lead.id} lead={lead} />)
             )}
           </section>
           <button
@@ -328,7 +302,7 @@ export default function Panel() {
           {message}
         </p>
       )}
-      <footer>Luis Fernando · Hub Almeida · versão 2</footer>
+      <footer>Luis Fernando · Hub Almeida · versão 3</footer>
     </main>
   );
 }

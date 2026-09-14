@@ -6,7 +6,9 @@ export async function GET(req: NextRequest) {
   try {
     const { data, error } = await database()
       .from("sala404_leads")
-      .select("id,name,phone,profession,reason,created_at,notification_sent")
+      .select(
+        "id,name,phone,profession,internet_sales,best_month,reason,created_at,notification_sent",
+      )
       .order("created_at", { ascending: false })
       .limit(50);
     if (error) throw Error();
