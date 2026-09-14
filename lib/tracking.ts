@@ -33,7 +33,6 @@ export function track(event: TrackingEvent, eventId?: string) {
   if (event === "view_page") window.fbq?.("track", "PageView");
   else if (event === "lead_submitted")
     window.fbq?.("track", "Lead", {}, { eventID: eventId });
-  else window.fbq?.("trackCustom", event);
 }
 export function attribution() {
   const q = new URLSearchParams(location.search);
