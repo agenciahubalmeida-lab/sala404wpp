@@ -1,5 +1,6 @@
 import { database } from "./server";
 import { notifyPush } from "./push";
+import { founderCall,founderEnabled } from './founder';
 type Job = {
   id: string;
   name: string;
@@ -121,6 +122,10 @@ export async function deliverPending(id?: string) {
       })
       .eq("id", job.id);
     if (updateError) throw new Error("DELIVERY_STATUS_FAILED");
+    if(founderEnabled()){
+      if(job.meta_payload)await founderCall({action:'health',health:{service:'meta_capi',ok:meta,detail:meta?'EVENT_ACCEPTED':'DELIVERY_FAILED'}}).catch(()=>{});
+      await founderCall({action:'health',health:{service:'sala404_delivery',ok:notification,detail:notification?'DELIVERY_ACCEPTED':'DELIVERY_FAILED'}}).catch(()=>{});
+    }
     if (meta && notification) delivered++;
   }
   return { processed: data?.length || 0, delivered };

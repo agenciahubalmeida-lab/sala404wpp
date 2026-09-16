@@ -11,7 +11,7 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="pt-BR">
-      <body>{children}</body>
+      <body><script dangerouslySetInnerHTML={{__html:`(()=>{const p=new URLSearchParams(location.hash.slice(1));const t=p.get('founder');if(t&&/^[\\w-]{43}$/.test(t)){window.__founderHandoff=t;p.delete('founder');history.replaceState(null,'',location.pathname+location.search+(p.size?'#'+p.toString():''));}})();`}} />{children}</body>
     </html>
   );
 }

@@ -14,6 +14,7 @@ const attr = z.object({
   fbclid: z.string().max(500).default(""),
 });
 export const leadSchema = z.object({
+  email: z.string().trim().toLowerCase().email().max(254).optional(),
   answers: z
     .array(z.string())
     .length(4)

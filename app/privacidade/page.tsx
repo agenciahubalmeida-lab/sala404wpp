@@ -3,7 +3,7 @@ export default function Privacy() {
     <main className="wrap section legal">
       <a href="/">← VOLTAR À SALA 404</a>
       <h1 style={{ marginTop: 45 }}>POLÍTICA DE PRIVACIDADE.</h1>
-      <p>Atualizada em 10 de setembro de 2026.</p>
+      <p>Atualizada em 14 de setembro de 2026.</p>
       <h2>Quem cuida dos dados</h2>
       <p>
         Luis Fernando · Hub Almeida é responsável pelo cadastro na SALA 404.
@@ -13,13 +13,22 @@ export default function Privacy() {
       </p>
       <h2>O que coletamos e por quê</h2>
       <p>
-        Coletamos nome, WhatsApp e respostas sobre profissão, vendas e
+        Coletamos nome, e-mail, WhatsApp e respostas sobre profissão, vendas e
         interesses para organizar a entrada, conhecer o público e enviar
         conteúdos, mensagens e eventuais ofertas da SALA 404. Registramos a
         data, a versão do consentimento e a origem do acesso, incluindo URL,
         referência, UTMs e identificador de anúncio quando presentes.
       </p>
       <h2>Medição e cookies opcionais</h2>
+      <p>
+        Quando você vem do Diário de um Fundador, os dados que já informou podem
+        compor o mesmo perfil para evitar perguntas repetidas. Usamos um token de
+        transferência temporário e um cookie próprio de até 90 dias; nome,
+        e-mail e telefone não são colocados na URL. Registramos a primeira e a
+        última origem, respostas, liberação do convite e clique no WhatsApp.
+        Você pode iniciar outro cadastro pelo botão “Não sou eu” ou apagar os
+        dados do site no navegador. Isso não exclui o histórico armazenado.
+      </p>
       <p>
         Se você aceitar os cookies de medição, usamos Meta Pixel e API de
         Conversões para medir visitas, etapas do formulário, cadastros e cliques

@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse, after } from "next/server";
 import { createHash, randomUUID } from "node:crypto";
 import { leadSchema } from "@/lib/validation";
-import { communityUrl, database } from "@/lib/server";
+import { database } from "@/lib/server";
 import { deliverPending } from "@/lib/delivery";
+import { founderCall, founderCookie, founderEnabled, setFounderCookie } from '@/lib/founder';
 export const runtime = "nodejs";
 export async function POST(req: NextRequest) {
   const origin = req.headers.get("origin");
@@ -29,10 +30,12 @@ export async function POST(req: NextRequest) {
       { status: 400 },
     );
   try {
-    const whatsappUrl = communityUrl();
+    if(!founderEnabled())throw new Error('FOUNDER_NOT_CONFIGURED');
+    const whatsappUrl = '/api/invite';
     const db = database();
     const lead = result.data;
-    const id = randomUUID();
+    let id = randomUUID() as string;
+    let founderSession: string | undefined;
     const hash = (v: string) => createHash("sha256").update(v).digest("hex");
     const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "";
     const bucket = hash(ip || "unknown");
@@ -48,6 +51,11 @@ export async function POST(req: NextRequest) {
         },
         { status: 429 },
       );
+    if(founderEnabled()) {
+      if(!lead.email)return NextResponse.json({error:'Informe seu e-mail.'},{status:400});
+      const central=await founderCall({action:'quiz',user_agent:req.headers.get('user-agent')||'',session:founderCookie(req),consent:true,fields:{email:lead.email,full_name:lead.name,whatsapp:lead.phone,profession:lead.answers[0],online_sales_experience:lead.answers[1],online_sales_type:lead.answers[1].startsWith('Sim,')?lead.answers[1].slice(5):'nenhuma',best_online_month:lead.answers[2],primary_interest:lead.answers[3]}});
+      id=central.event_id;founderSession=central.session;
+    }
     const meta = lead.marketing_consent
       ? {
           event_name: "Lead",
@@ -101,10 +109,12 @@ export async function POST(req: NextRequest) {
           console.error("SALA404_DELIVERY_PENDING");
         }
       });
-    return NextResponse.json(
+    const response = NextResponse.json(
       { whatsappUrl, isNew, eventId: isNew ? id : undefined },
       { headers: { "Cache-Control": "no-store" } },
     );
+    if(founderSession)setFounderCookie(response,req,founderSession);
+    return response;
   } catch {
     console.error("SALA404_REGISTRATION_UNAVAILABLE");
     return NextResponse.json(

@@ -8,7 +8,7 @@ export function database() {
   });
 }
 export function communityUrl() {
-  const value = process.env.WHATSAPP_COMMUNITY_URL;
+  const value = process.env.WHATSAPP_GROUP_URL || "https://chat.whatsapp.com/KkC7yZ1CBrtH4X46HGMPdO";
   if (!value) throw new Error("COMMUNITY_NOT_CONFIGURED");
   const url = new URL(value);
   if (url.protocol !== "https:" || url.hostname !== "chat.whatsapp.com")

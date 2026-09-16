@@ -45,8 +45,8 @@ export function attribution() {
     "fbclid",
   ];
   const value: Record<string, string> = {
-    source_url: location.href,
-    referrer: document.referrer,
+    source_url: location.href.split('#')[0],
+    referrer: document.referrer.split(/[?#]/)[0],
   };
   for (const key of keys) value[key] = q.get(key) || "";
   return value;

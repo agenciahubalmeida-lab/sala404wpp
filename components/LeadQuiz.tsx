@@ -3,11 +3,26 @@ import { useEffect, useRef, useState } from "react";
 import { questions, maskPhone } from "@/lib/questions";
 import { attribution, cookie, marketingAllowed, track } from "@/lib/tracking";
 import { StickFigure } from "./StickFigure";
+declare global { interface Window { __founderHandoff?: string; } }
 export function LeadQuiz() {
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<string[]>(["", "", "", ""]);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+  const [email,setEmail]=useState('');
+  const [known,setKnown]=useState<Record<string,string>>({});
+  const [enabled,setEnabled]=useState(false);
+  const [loading,setLoading]=useState(true);
+  const [profileError,setProfileError]=useState(false);
+  const keys=['profession','online_sales_experience','best_online_month','primary_interest'];
+  const activeSteps=[0,1,2,3,4,5].filter(i=>i<4?!known[keys[i]]:i===4?!known.full_name:true);
+  async function bridge(data:Record<string,unknown>){const response=await fetch('/api/founder',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data),keepalive:true});const result=await response.json();if(!response.ok)throw new Error(result.error);return result;}
+  async function loadProfile(reset=false){setLoading(true);setProfileError(false);try{
+    const hash=new URLSearchParams(location.hash.slice(1));const handoff=window.__founderHandoff || hash.get('founder');
+    const data=await bridge({action:reset?'reset':handoff?'exchange':'session',handoff:reset?undefined:handoff,attribution:{...attribution(),landing_page:location.pathname,source:'sala404'}});
+    if(handoff){delete window.__founderHandoff;hash.delete('founder');history.replaceState(null,'',location.pathname+location.search+(hash.size?'#'+hash.toString():''));}
+    const p=data.profile || {};setEnabled(data.enabled);if(data.enabled)void bridge({action:'event',event_name:'sala404_lp_view'}).catch(()=>{});setKnown(p);setName(p.full_name || '');setEmail(p.email || '');setPhone(p.whatsapp?maskPhone(p.whatsapp.slice(2)):'');setAnswers(keys.map(key=>p[key] || ''));setStep([0,1,2,3,4,5].find(i=>i<4?!p[keys[i]]:i===4?!p.full_name:true) ?? 5);
+  }catch{setProfileError(true);}finally{setLoading(false);}}
   const [consent, setConsent] = useState(false);
   const [busy, setBusy] = useState(false);
   const [selected, setSelected] = useState<number | null>(null);
@@ -19,6 +34,7 @@ export function LeadQuiz() {
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
     source.current = attribution();
+    void loadProfile();
     return () => {
       if (timer.current) clearTimeout(timer.current);
     };
@@ -26,10 +42,12 @@ export function LeadQuiz() {
   useEffect(() => {
     if (started.current) title.current?.focus();
   }, [step]);
+  useEffect(()=>{if(enabled&&!loading&&!access)void bridge({action:'event',event_name:'sala404_quiz_step_'+(step+1)}).catch(()=>{});},[enabled,loading,step,access]);
   function choose(value: string, index: number) {
     if (selected !== null) return;
     if (!started.current) {
       track("quiz_started");
+      if(enabled)void bridge({action:'event',event_name:'sala404_quiz_started'}).catch(()=>{});
       started.current = true;
     }
     setAnswers((old) => old.map((v, i) => (i === step ? value : v)));
@@ -37,13 +55,13 @@ export function LeadQuiz() {
     track(`quiz_step_${step + 1}` as "quiz_step_1");
     timer.current = setTimeout(() => {
       setSelected(null);
-      setStep((s) => s + 1);
+      setStep(activeSteps[activeSteps.indexOf(step)+1] ?? 5);
       setError("");
     }, 190);
   }
   async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setError("");
+    setError("");if(!started.current){started.current=true;if(enabled)void bridge({action:'event',event_name:'sala404_quiz_started'}).catch(()=>{});}
     if (step === 4) {
       if (name.trim().split(/\s+/).length < 2) {
         setError("Me diga seu nome e sobrenome.");
@@ -62,6 +80,7 @@ export function LeadQuiz() {
           answers,
           name,
           phone,
+          ...(enabled?{email}:{}),
           consent,
           marketing_consent: marketingAllowed(),
           attribution: source.current,
@@ -116,16 +135,18 @@ export function LeadQuiz() {
         </a>
       </div>
     );
+  if(loading)return <p role="status">Preparando seu cadastro…</p>;
+  if(profileError)return <div role="alert"><p>Não foi possível recuperar seu cadastro.</p><button className="button" onClick={()=>void loadProfile()}>TENTAR NOVAMENTE</button><button onClick={()=>void loadProfile(true)}>COMEÇAR NOVO CADASTRO</button></div>;
   return (
     <div className="quiz">
       <div className="quiz-top">
-        <span>{step + 1} DE 6</span>
-        {step > 0 ? (
+        <span>{activeSteps.indexOf(step)+1} DE {activeSteps.length}</span>
+        {activeSteps.indexOf(step) > 0 ? (
           <button
             type="button"
             disabled={busy || selected !== null}
             onClick={() => {
-              setStep((s) => s - 1);
+              setStep(activeSteps[activeSteps.indexOf(step)-1]);
               setError("");
             }}
           >
@@ -140,10 +161,10 @@ export function LeadQuiz() {
         role="progressbar"
         aria-label="Progresso do cadastro"
         aria-valuemin={0}
-        aria-valuemax={6}
-        aria-valuenow={step + 1}
+        aria-valuemax={activeSteps.length}
+        aria-valuenow={activeSteps.indexOf(step)+1}
       >
-        <div style={{ width: `${((step + 1) / 6) * 100}%` }} />
+        <div style={{ width: `${((activeSteps.indexOf(step)+1) / activeSteps.length) * 100}%` }} />
       </div>
       <div className="quiz-panel" key={step}>
         <h2 ref={title} tabIndex={-1}>
@@ -151,7 +172,7 @@ export function LeadQuiz() {
             ? questions[step].title
             : step === 4
               ? "COMO VOCÊ SE CHAMA?"
-              : "QUAL É O SEU WHATSAPP?"}
+              : known.whatsapp ? "VAMOS LIBERAR SEU CONVITE?" : "QUAL É O SEU WHATSAPP?"}
         </h2>
         {step < 4 ? (
           <div className="quiz-options">
@@ -169,6 +190,7 @@ export function LeadQuiz() {
           </div>
         ) : (
           <form onSubmit={submit}>
+            {Object.keys(known).length>0&&<p className="micro">Já temos os dados que você informou. <button type="button" onClick={()=>void loadProfile(true)}>Não sou eu</button></p>}
             {step === 4 ? (
               <>
                 <label className="micro" htmlFor="lead-name">
@@ -191,7 +213,7 @@ export function LeadQuiz() {
               </>
             ) : (
               <>
-                <label className="micro" htmlFor="lead-phone">
+                {!known.whatsapp&&<><label className="micro" htmlFor="lead-phone">
                   WhatsApp com DDD
                 </label>
                 <input
@@ -207,7 +229,8 @@ export function LeadQuiz() {
                   value={phone}
                   onChange={(e) => setPhone(maskPhone(e.target.value))}
                 />
-                <p className="micro">É por lá que a SALA 404 funciona.</p>
+                <p className="micro">É por lá que a SALA 404 funciona.</p></>}
+                {enabled&&!known.email&&<><label className="micro" htmlFor="lead-email">Seu melhor e-mail</label><input id="lead-email" className="quiz-input" type="email" autoComplete="email" required maxLength={254} value={email} onChange={e=>setEmail(e.target.value)}/></>}
                 <label className="consent">
                   <input
                     type="checkbox"
